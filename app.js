@@ -15,9 +15,12 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://blog-murex-ten-84.vercel.app/", // Replace with your frontend URL
+    origin: [
+      "https://blog-murex-ten-84.vercel.app", // Your deployed frontend URL
+    ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // If you use cookies or need credentials
   })
 );
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
