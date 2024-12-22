@@ -13,14 +13,22 @@ const app = express();
 
 // Middleware
 app.use(express.json());
+const allowedOrigins = [
+  "https://blog-murex-ten-84.vercel.app", // Your deployed frontend
+  "http://localhost:5173", // Local development
+];
+
 app.use(
   cors({
-    origin: [
-      "https://blog-murex-ten-84.vercel.app", // Your deployed frontend URL
-    ],
+    origin: (origin, callback) => {
+      if (allowedOrigins.includes(origin) || !origin) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true, // If you use cookies or need credentials
   })
 );
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
