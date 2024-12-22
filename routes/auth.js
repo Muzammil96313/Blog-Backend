@@ -26,6 +26,11 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+console.log({
+  cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+  apiKey: process.env.CLOUDINARY_API_KEY,
+  apiSecret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
@@ -42,25 +47,22 @@ router.put(
   authenticate,
   upload.single("avatar"),
   async (req, res) => {
-    const { name, email, password } = req.body;
-
     try {
+      const { name, email, password } = req.body;
       const user = await User.findById(req.user.id);
       if (!user) return res.status(404).json({ error: "User not found" });
 
-      // Update fields
       if (name) user.name = name;
       if (email) user.email = email;
       if (password) user.password = await bcrypt.hash(password, 10);
-
-      // Handle avatar upload
       if (req.file) {
-        user.avatar = `/uploads/avatars/${req.file.filename}`;
+        user.avatar = req.file.path; // Set the URL from Cloudinary
       }
 
       const updatedUser = await user.save();
       res.json({ message: "Profile updated successfully", user: updatedUser });
     } catch (error) {
+      console.error("Error updating profile:", error);
       res.status(500).json({ error: error.message });
     }
   }
